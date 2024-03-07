@@ -1,0 +1,1 @@
+export const CHANGE_NOW_API_OPTIONS = 'CHANGE_NOW_API_OPTIONS' as const;
