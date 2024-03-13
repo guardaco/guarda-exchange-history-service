@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExchangeEntity } from './entities/exchange.entity';
 import { AppService } from './app.service';
-import { ExchangeError, ExchangeGetTransactionsDTO, ExchangeGetTransactionsRequestDTO } from './dto/exchange.dto';
+import { ExchangeError, ExchangeGetTransactionsDTO, ExchangeGetTransactionsRequestDTO, ExchangeUpdateTransactionDTO, ExchangeUpdateTransactionRequestDTO } from './dto/exchange.dto';
 
 @Controller()
 export class AppController {
@@ -28,6 +28,26 @@ export class AppController {
     return this.exchangeService.getTransactions({
       addresses,
       createdAtPeriod,
+    });
+  }
+
+  @Put('/update-transaction')
+  async updateTransaction(
+    @Body('exchangeId')
+    exchangeId: ExchangeUpdateTransactionRequestDTO['exchangeId'],
+    @Body('payinHash')
+    payinHash: ExchangeUpdateTransactionRequestDTO['payinHash'],
+    @Body('amountTo') amountTo: ExchangeUpdateTransactionRequestDTO['amountTo'],
+    @Body('fromFamily')
+    fromFamily: ExchangeUpdateTransactionRequestDTO['fromFamily'],
+    @Body('toFamily') toFamily: ExchangeUpdateTransactionRequestDTO['toFamily'],
+  ): Promise<ExchangeUpdateTransactionDTO | ExchangeError> {
+    return this.exchangeService.updateTransaction({
+      exchangeId,
+      payinHash,
+      amountTo,
+      fromFamily,
+      toFamily,
     });
   }
 }

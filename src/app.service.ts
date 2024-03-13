@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ExchangeEntity } from './entities/exchange.entity';
-import { ExchangeError, ExchangeGetTransactionsRequestDTO, ExchangeTransactionByIdDTO } from './dto/exchange.dto';
+import { ExchangeError, ExchangeGetTransactionsRequestDTO, ExchangeTransactionByIdDTO, ExchangeUpdateTransactionRequestDTO,  ExchangeUpdateTransactionDTO} from './dto/exchange.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { ChangeNowApiError, ChangeNowTransactionByIdDTOClass } from './clients/change-now-api/change-now-api.dto';
 import { ChangeNowApiService } from './clients/change-now-api/change-now-api.service';
 import { CHANGENOW_PARTNER } from './consts';
 import { AppConfigService } from './modules/config/config.service';
+import { finished } from 'stream';
 
 @Injectable()
 export class AppService {
@@ -229,6 +230,63 @@ export class AppService {
       depositReceivedAt: transaction.depositReceivedAt,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
+    };
+  }
+
+  async updateTransaction({
+    exchangeId,
+    payinHash,
+    amountTo,
+    fromFamily,
+    toFamily,
+    dustInvoiceId,
+  }: ExchangeUpdateTransactionRequestDTO): Promise<
+    ExchangeUpdateTransactionDTO | ExchangeError
+  > {
+    // @ts-ignore
+    const exchangeTransaction = await this.exchangeRepo.findOne({ exchangeId });
+
+    if (!exchangeTransaction) {
+      return {
+        status: false,
+      };
+    }
+
+    if (payinHash) {
+      Object.assign(exchangeTransaction, {
+        payinHash,
+        status: finished,
+      });
+    }
+
+    if (amountTo) {
+      Object.assign(exchangeTransaction, {
+        amountReceive: amountTo,
+      });
+    }
+
+    if (dustInvoiceId) {
+      Object.assign(exchangeTransaction, {
+        dustInvoiceId,
+      });
+    }
+
+    if (fromFamily) {
+      Object.assign(exchangeTransaction, {
+        fromFamily,
+      });
+    }
+
+    if (toFamily) {
+      Object.assign(exchangeTransaction, {
+        toFamily,
+      });
+    }
+
+    await this.exchangeRepo.save(exchangeTransaction);
+
+    return {
+      status: true,
     };
   }
 }
