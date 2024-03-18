@@ -6,10 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfigService } from './modules/config/config.service';
 import { ExchangeEntity } from './entities/exchange.entity';
 import { AppLoggerMiddleware } from './middleware/app-logger.middleware';
+import { ChangeNowApiModule } from './clients/change-now-api/change-now-api.module';
 
 @Module({
   imports: [
-    AppConfigModule.forRoot('./.env'),
     TypeOrmModule.forRootAsync({
       inject: [AppConfigService],
       imports: [AppConfigModule],
@@ -20,6 +20,7 @@ import { AppLoggerMiddleware } from './middleware/app-logger.middleware';
         return config;
       },}),
     TypeOrmModule.forFeature([ExchangeEntity]),
+    ChangeNowApiModule
   ],
   controllers: [AppController],
   providers: [AppService],

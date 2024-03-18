@@ -5,7 +5,6 @@ import { ConfigKeys } from './config.keys';
 import {
   ChangeNowApiOptions,
   ExchangeVendorsConfig,
-  SwapzoneApiOptions,
 } from './config.type';
 
 @Injectable()
