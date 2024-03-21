@@ -37,35 +37,23 @@ export class AppService {
       };
     }
 
-    console.log(1)
-
     if (!addresses?.length) {
       // const exchangeTransactions = await this.exchangeRepo.find();
       // return {
       //   exchanges: exchangeTransactions,
       // };
-      console.log(2)
 
       return {
         exchanges: []
       }
     }
 
-    console.log(3)
-
     let exchanges: ExchangeEntity[] = [];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const wallet of addresses) {
-
-      console.log(4)
-      console.log(wallet)
-
       // if wallet from monitring => skip
       if (this.isExcluded(wallet[0], wallet[1])) {
-        console.log(3245234)
-        console.log('Excluded wallet:', wallet[1]);
-
         continue; 
       }
 
@@ -77,9 +65,6 @@ export class AppService {
             status: In(['finished', 'refund', 'expired', 'failed', 'waiting']),
           },
         });
-        console.log('-----------------------------FROM-----------------------------')
-        console.log(resultFrom)
-        console.log('---------------------------------------------------------------')
 
         exchanges = exchanges.concat(resultFrom || []);
       } catch (ignore) {
@@ -94,9 +79,6 @@ export class AppService {
             status: In(['finished', 'refund', 'expired', 'failed', 'waiting']),
           }
         });
-        console.log('-----------------------------TO--------------------------------')
-        console.log(resultTo)
-        console.log('---------------------------------------------------------------')
 
         exchanges = exchanges.concat(resultTo || []);
       } catch (ignore) {
@@ -123,22 +105,12 @@ export class AppService {
       'amountTo',
     ];
 
-    console.log(5)
-
     for (const exchange of exchanges) {
-      console.log(6)
-      console.log(exchange)
       // eslint-disable-line
       const isNeedUpdateByDate =
         exchange.updatedAt === undefined ||
         Number(new Date(exchange.createdAt || Date.now())) >
           Date.now() - 1000 * 60 * 60 * 24 * 7;
-
-        console.log(7)
-        console.log(isNeedUpdateByDate)  
-        console.log(8)
-
-
 
       if (
         exchange &&
@@ -148,8 +120,6 @@ export class AppService {
         isNeedUpdateByDate
       ) {
         try {
-          console.log(9)
-
           const { transaction: tx } = await this.getTransactionById({
             id: exchange.exchangeId,
             partner: CHANGENOW_PARTNER,
