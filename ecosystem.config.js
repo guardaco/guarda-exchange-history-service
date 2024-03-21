@@ -1,6 +1,6 @@
 module.exports = {
     apps : [{
-      name: "exchange-service",
+      name: "exchange-history-service",
       script: "node",
       args: "dist/main",
       watch: true,

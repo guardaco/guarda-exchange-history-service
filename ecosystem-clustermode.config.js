@@ -2,7 +2,7 @@ const { Script } = require("vm");
 
 module.exports = {
   apps : [{
-    name: "exchange-service",
+    name: "exchange-history-service",
     //script: "node",
     script: "dist/main.js",
     instances: 3,
