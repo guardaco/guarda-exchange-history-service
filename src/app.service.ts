@@ -72,7 +72,7 @@ export class AppService {
           where: {
             fromAddress: wallet[1],
             fromCurrency: wallet[0],
-            status: In(['finished', 'refund', 'expired', 'failed']),
+            status: In(['finished', 'refund', 'expired', 'failed', 'waiting']),
           },
         });
         console.log('-----------------------------FROM-----------------------------')
@@ -89,7 +89,7 @@ export class AppService {
           where: {
             payoutAddress: wallet[1],
             toCurrency: wallet[0],
-            status: In(['finished', 'refund', 'expired', 'failed']),
+            status: In(['finished', 'refund', 'expired', 'failed', 'waiting']),
           }
         });
         console.log('-----------------------------TO--------------------------------')
