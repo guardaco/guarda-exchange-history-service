@@ -62,7 +62,7 @@ export class AppService {
           where: {
             fromAddress: wallet[1],
             fromCurrency: wallet[0],
-            status: In(['finished', 'refund', 'expired', 'failed', 'waiting', 'confirming']),
+            status: In(['finished', 'refund', 'expired', 'failed', 'waiting', 'confirming', 'sending']),
           },
         });
 
@@ -76,7 +76,7 @@ export class AppService {
           where: {
             payoutAddress: wallet[1],
             toCurrency: wallet[0],
-            status: In(['finished', 'refund', 'expired', 'failed', 'waiting', 'confirming']),
+            status: In(['finished', 'refund', 'expired', 'failed', 'waiting', 'confirming', 'sending']),
           }
         });
 
@@ -128,32 +128,29 @@ export class AppService {
 
           Object.keys(tx).forEach((key) => {
             if (accessKeys.indexOf(key) > -1) {
-              // @ts-ignore
-              if (tx[key] && key === 'status' && tx[key] !== exchange[key]) {
-                // update status
-                // @ts-ignore
+              // проверка на ключи эмаунтов, если они отличаются
+              if ((key === 'amountTo' || key === 'amountSend' || key === 'amountReceive') && String(tx[key]) !== String(exchange[key])) {
                 exchange[key] = tx[key];
                 needUpdate = true;
               }
-              // @ts-ignore
-              if (key !== 'amountTo' && !exchange[key] && tx[key]) {
-                // update fields if field null
-                // @ts-ignore
+              // обновление статуса, если он отличается
+              else if (key === 'status' && tx[key] !== exchange[key]) {
                 exchange[key] = tx[key];
                 needUpdate = true;
               }
-              // @ts-ignore
-              if (
-                tx[key] &&
-                exchange[key] &&
-                String(tx[key]) !== String(exchange[key])
-              ) {
-                // @ts-ignore
+              // обновление если поля пусты в exchange (кроме amountTo, amountSend, amountReceive)
+              else if (key !== 'status' && !['amountTo', 'amountSend', 'amountReceive'].includes(key) && !exchange[key] && tx[key]) {
+                exchange[key] = tx[key];
+                needUpdate = true;
+              }
+              // обновление полей, если они отличаются и не пусты (исключая уже обработанные)
+              else if (key !== 'status' && !['amountTo', 'amountSend', 'amountReceive'].includes(key) && tx[key] && exchange[key] && String(tx[key]) !== String(exchange[key])) {
                 exchange[key] = tx[key];
                 needUpdate = true;
               }
             }
           });
+          
 
           if (needUpdate) {
             await this.exchangeRepo.save(exchange);
