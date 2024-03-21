@@ -64,6 +64,8 @@ export class AppService {
       // if wallet from monitring => skip
       if (this.isExcluded(wallet[0], wallet[1])) {
         console.log(3245234)
+        console.log('Excluded wallet:', wallet[1]);
+
         continue; 
       }
 
