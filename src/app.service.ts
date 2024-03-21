@@ -329,7 +329,7 @@ export class AppService {
     };
   }
 
-  private async isExcluded (currency: string, address: string) {
+  private isExcluded (currency: string, address: string) {
     return MONITORING_WALLETS.some(exclusion => exclusion.currency === currency && exclusion.address.toLowerCase() === address.toLowerCase());
   }
 
