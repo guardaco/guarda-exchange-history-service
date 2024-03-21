@@ -2,11 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ExchangeEntity } from './entities/exchange.entity';
 import { ExchangeError, ExchangeGetTransactionsRequestDTO, ExchangeTransactionByIdDTO, ExchangeUpdateTransactionRequestDTO,  ExchangeUpdateTransactionDTO} from './dto/exchange.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { ChangeNowApiError, ChangeNowTransactionByIdDTOClass } from './clients/change-now-api/change-now-api.dto';
 import { ChangeNowApiService } from './clients/change-now-api/change-now-api.service';
-import { CHANGENOW_PARTNER } from './consts';
-import { AppConfigService } from './modules/config/config.service';
+import { CHANGENOW_PARTNER, MONITORING_WALLETS } from './consts';
 import { finished } from 'stream';
 
 @Injectable()
@@ -26,6 +25,7 @@ export class AppService {
   }: ExchangeGetTransactionsRequestDTO): Promise<{
     exchanges: ExchangeEntity[];
   }> {
+
     if (createdAtPeriod) {
       // specified if request is from board
       const exchanges = await this.exchangeRepo.find({
@@ -38,16 +38,26 @@ export class AppService {
     }
 
     if (!addresses?.length) {
-      const exchangeTransactions = await this.exchangeRepo.find();
+      // const exchangeTransactions = await this.exchangeRepo.find();
+      // return {
+      //   exchanges: exchangeTransactions,
+      // };
+
       return {
-        exchanges: exchangeTransactions,
-      };
+        exchanges: []
+      }
     }
 
     let exchanges: ExchangeEntity[] = [];
 
     // eslint-disable-next-line no-restricted-syntax
     for (const wallet of addresses) {
+
+      // if wallet from monitring => skip
+      if (this.isExcluded(wallet[0], wallet[1])) {
+        continue; 
+      }
+
       try {
         const resultFrom = await this.exchangeRepo.find({
           where: {
@@ -101,7 +111,8 @@ export class AppService {
       const isNeedUpdateByDate =
         exchange.updatedAt === undefined ||
         Number(new Date(exchange.createdAt || Date.now())) >
-          Date.now() - 1000 * 60 * 60 * 48;
+          Date.now() - 1000 * 60 * 60 * 24 * 7;
+        console.log(isNeedUpdateByDate)  
 
       if (
         exchange &&
@@ -289,4 +300,9 @@ export class AppService {
       status: true,
     };
   }
+
+  private async isExcluded (currency: string, address: string) {
+    MONITORING_WALLETS.some(exclusion => exclusion.currency === currency && exclusion.address.toLowerCase() === address.toLowerCase());
+  }
+
 }

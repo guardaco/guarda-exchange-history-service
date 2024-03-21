@@ -1,21 +1,29 @@
-import { Controller, Get, Post, Body, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExchangeEntity } from './entities/exchange.entity';
 import { AppService } from './app.service';
-import { ExchangeError, ExchangeGetTransactionsDTO, ExchangeGetTransactionsRequestDTO, ExchangeUpdateTransactionDTO, ExchangeUpdateTransactionRequestDTO } from './dto/exchange.dto';
+import { ExchangeError, ExchangeGetTransactionsDTO, ExchangeGetTransactionsRequestDTO, ExchangeTransactionByIdDTO, ExchangeUpdateTransactionDTO, ExchangeUpdateTransactionRequestDTO, GetTransactionByIdRequestDTO } from './dto/exchange.dto';
 
 @Controller('exchange/v1/api/')
 export class AppController {
   constructor(
     private readonly exchangeService: AppService,
-    @InjectRepository(ExchangeEntity)
-    private exchangeRepo: Repository<ExchangeEntity>,
   ) {}
 
   @Get('/health-check')
   async healthCheck(): Promise<string> {
     return 'OK';
+  }
+
+  @Get('/get-transaction/:partner/:id')
+  async getTransactionById(
+    @Param('id') id: GetTransactionByIdRequestDTO['id'],
+    @Param('partner') partner: GetTransactionByIdRequestDTO['partner'],
+  ): Promise<{
+    transaction: ExchangeTransactionByIdDTO | ExchangeError;
+  }> {
+    return this.exchangeService.getTransactionById({ id, partner });
   }
 
   @Post('/get-transactions')

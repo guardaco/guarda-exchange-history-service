@@ -8,6 +8,10 @@ import {
   } from 'class-validator';
   import { ExchangeEntity } from '../entities/exchange.entity';
 
+  enum ExchangePartner {
+    Changenow = 'changenow',
+  }
+
   export class ExchangeUpdateTransactionRequestDTO {
     @IsString()
     exchangeId: string; // Transaction ID
@@ -59,6 +63,14 @@ export class ExchangeGetTransactionsRequestDTO {
     @IsOptional()
     message?: string;
   }  
+
+  export class GetTransactionByIdRequestDTO {
+    @IsString()
+    id: string;
+  
+    @IsEnum(ExchangePartner)
+    partner: ExchangePartner;
+  }
 
   export class ExchangeTransactionByIdDTO {
     @IsString()
