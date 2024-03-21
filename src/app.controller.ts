@@ -5,7 +5,7 @@ import { ExchangeEntity } from './entities/exchange.entity';
 import { AppService } from './app.service';
 import { ExchangeError, ExchangeGetTransactionsDTO, ExchangeGetTransactionsRequestDTO, ExchangeUpdateTransactionDTO, ExchangeUpdateTransactionRequestDTO } from './dto/exchange.dto';
 
-@Controller()
+@Controller('exchange/v1/api/')
 export class AppController {
   constructor(
     private readonly exchangeService: AppService,
